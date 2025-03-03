@@ -11,22 +11,25 @@ import SafariServices
 @MainActor
 final class NewsFeedCoordinator: Coordinator {
     
-    var rootViewController: UINavigationController
+    var rootViewController: UISplitViewController
     
     init() {
-        self.rootViewController = UINavigationController()
-        self.rootViewController.navigationBar.prefersLargeTitles = false
+        let splitController = UISplitViewController(style: .doubleColumn)
+        self.rootViewController = splitController
+        splitController.displayModeButtonVisibility = .never
     }
 
     func start() {
         let newsFeedController = makeNewsFeedController()
-        rootViewController.setViewControllers([newsFeedController], animated: false)
+        rootViewController.setViewController(newsFeedController, for: .primary)
     }
     
     private func showNewsDetail(newsModel: NewsModel) {
-        let safariVC = SFSafariViewController(url: newsModel.fullUrl)
+        let safariVC = SplitSFViewController(url: newsModel.fullUrl)
         safariVC.preferredControlTintColor = .accent
-        rootViewController.present(safariVC, animated: true)
+        let navigationController = UINavigationController(rootViewController: safariVC)
+        rootViewController.showDetailViewController(navigationController, sender: rootViewController)
+        navigationController.setNavigationBarHidden(true, animated: false)
     }
     
     private func makeNewsFeedController() -> NewsFeedViewController {
